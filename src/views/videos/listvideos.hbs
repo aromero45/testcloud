@@ -1,0 +1,23 @@
+<div class="container p-4">
+    <div class="row">
+        {{#each videos}}
+           <div class="col-md-3">
+               <div class="card-body">
+                 <a href="/{{original_video}}" target="_blank">
+                     <h3 class="card-title text-uppercase">
+                          {{name}}
+                     </h3>
+                 </a>
+                 <p>{{lastname}}</p>
+               </div>
+           </div>
+        {{else}}
+           <div class="col-md-4 mx auto">
+               <div class="card card-body text-center">
+                 <p>no hay videos en el concurso </p>
+                 <a href="/videos/add">Subir un video</a>
+               </text-center>
+           </div>
+        {{/each}}
+    </div>
+</div>
