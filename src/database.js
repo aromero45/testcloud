@@ -1,6 +1,13 @@
 const mysql = require('mysql');
 const { promisify } = require('util');
-const { database } = require('./keys');
+
+
+
+const database={
+    user:process.env.USER_DB,
+    password:process.env.PASSWORD_DB,
+    database:process.env.DATABASE
+};
 
 
 const pool = mysql.createPool(database); 
