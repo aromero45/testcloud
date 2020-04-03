@@ -77,7 +77,14 @@ router.post('/add',isLoggedIn, async (req, res) =>{
         await pool.query('INSERT INTO contest set ?', [newContest]);
      
          var contestid = await pool.query('SELECT * FROM contest WHERE name = ? AND url = ?',[newContest.name, newContest.url]);
-         const ImageFiles = req.files.image;
+         //let ImageFiles = req.files.image;
+         let ImageFiles
+          if (!req.files) {
+            ImageFiles = null;
+          }
+          else{
+            ImageFiles=req.files.image
+          }
          const id = contestid[0].id;
          //const contest = await pool.query('SELECT * FROM contest WHERE id = ?', [id]);
          console.log(contestid);
