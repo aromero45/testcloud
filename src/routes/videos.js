@@ -21,20 +21,6 @@ function checkFileType(file, cb){
        cb('Error: Images Only!');
      }
  }
-   // Init Upload
-const upload = multer({
-     storage: multer.diskStorage({
-       destination: '../public/uploads/',
-       filename: function(req, file, cb){
-         cb(null,Date.now() + path.extname(file.originalname));
-       }
-     }),
-     limits:{fileSize: 1000000},
-     fileFilter: function(req, file, cb){
-       checkFileType(file, cb);
-     }
- }).single('image');
-
 const pool = require('../database');
 const {isLoggedIn} = require('../lib/auth');
 
