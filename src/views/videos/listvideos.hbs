@@ -8,16 +8,23 @@
                           {{name}}
                      </h3>
                  </a>
-                 <p>{{lastname}}</p>
+                 <p>{{last_name}}</p>
+                 <p>{{email}}</p>
+
                </div>
            </div>
         {{else}}
-           <div class="col-md-4 mx auto">
+           <div class="col-md-4 mx auto"> 
                <div class="card card-body text-center">
-                 <p>no hay videos en el concurso </p>
+                 <p>no hay videos en el concurso</p>
                  <a href="/videos/add">Subir un video</a>
                </text-center>
            </div>
         {{/each}}
+        <div class="col-md-6"> 
+               <div class="card card-body text-center">
+                 <p>Agregar video </p>
+                 <a href="/videos/add">Subir un video</a>
+        </div>
     </div>
 </div>
