@@ -9,33 +9,6 @@ const path = require('path');
 const RUTA_GESTOR_ARCHIVOS_RAIZ = process.env.ruta_gestion_archivos_raiz;
 const RUTA_GESTOR_ARCHIVOS = process.env.ruta_gestion_archivos;
 
-function checkFileType(file, cb){
-    // Allowed ext
-    const filetypes = /jpeg|jpg|png|gif/;
-    // Check ext
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    // Check mime
-    const mimetype = filetypes.test(file.mimetype);
-    if(mimetype && extname){
-      return cb(null,true);
-    } else {
-      cb('Error: Images Only!');
-    }
-}
-  // Init Upload
-const upload = multer({
-    storage: multer.diskStorage({
-      destination: '../public/uploads/',
-      filename: function(req, file, cb){
-        cb(null,Date.now() + path.extname(file.originalname));
-      }
-    }),
-    limits:{fileSize: 1000000},
-    fileFilter: function(req, file, cb){
-      checkFileType(file, cb);
-    }
-}).single('image');
-
 const pool = require('../database');
 const {isLoggedIn} = require('../lib/auth');
 
@@ -83,12 +56,12 @@ router.post('/add',isLoggedIn, function (req, res, success){
                   console.log("Ruta archivos: ",RUTA_GESTOR_ARCHIVOS_RAIZ);
                   if(!fs.existsSync(RUTA_GESTOR_ARCHIVOS_RAIZ))
                         fs.mkdirSync(RUTA_GESTOR_ARCHIVOS_RAIZ);
-                        fs.mkdirSync(RUTA_GESTOR_ARCHIVOS+'Concurso '+contestid);
-                        fs.mkdirSync(RUTA_GESTOR_ARCHIVOS+'Concurso '+contestid+'//inicial');
-                        fs.mkdirSync(RUTA_GESTOR_ARCHIVOS+'Concurso '+contestid+'//convertido');
+                        fs.mkdirSync(RUTA_GESTOR_ARCHIVOS+contestid);
+                        fs.mkdirSync(RUTA_GESTOR_ARCHIVOS+contestid+'//inicial');
+                        fs.mkdirSync(RUTA_GESTOR_ARCHIVOS+contestid+'//convertido');
                         if(image!==null){
                             let filename=`concurso-${contestid}/${image.name}`;
-                            image.mv(RUTA_GESTOR_ARCHIVOS+'Concurso '+contestid+`//${image.name}`,function(err){
+                            image.mv(RUTA_GESTOR_ARCHIVOS+contestid+`//${image.name}`,function(err){
                                 if(err){
                                     return res.status(500).send(err);
                                 }
@@ -154,10 +127,9 @@ router.post ('/edit/:id', isLoggedIn, async (req, res, success) => {
         if (err) {
           throw err
         }else{
-          if(fs.existsSync(RUTA_GESTOR_ARCHIVOS+'Concurso '+id))
+          if(fs.existsSync(RUTA_GESTOR_ARCHIVOS+id))
             if(image!==null){
-                let filename=`concurso-${id}/${image.name}`;
-                image.mv(RUTA_GESTOR_ARCHIVOS+'Concurso '+id+`//${image.name}`,function(err){
+                image.mv(RUTA_GESTOR_ARCHIVOS+id+`//${image.name}`,function(err){
                     if(err){
                         return res.status(500).send(err);
                     }

@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 const exec = require('child_process').exec;
@@ -23,7 +22,7 @@ function checkFileType(file, cb){
      }
  }
    // Init Upload
- const upload = multer({
+const upload = multer({
      storage: multer.diskStorage({
        destination: '../public/uploads/',
        filename: function(req, file, cb){
@@ -43,7 +42,7 @@ const {isLoggedIn} = require('../lib/auth');
 router.get('/add', async (req, res) => {
      res.render('videos/addvideo', {links});
 });
-router.post('/add', async (req, res) =>{
+router.post('/add', function (req, res, success){
    
   const archivos = req.body;
   const archivos2 = req.files;
@@ -53,7 +52,7 @@ router.post('/add', async (req, res) =>{
    console.log(archivos2);
    console.log(archivos);
    console.log(nameurl[0]);
-   const archivos3 = await pool.query('SELECT * FROM contest WHERE url = ?',[nameurl[0]]);
+   //const archivos3 = pool.query('SELECT * FROM contest WHERE url = ?',[nameurl[0]]);
    console.log(archivos3);
    const contestid = archivos3[0].id;
  
@@ -69,9 +68,9 @@ router.post('/add', async (req, res) =>{
   };
   
 
-   await pool.query('INSERT INTO videos set ?', [newVideo]);
+   /*pool.query('INSERT INTO videos set ?', [newVideo]);
 
-   var videoid = await pool.query('SELECT * FROM videos WHERE email = ? AND name = ?',[newVideo.email, newVideo.name]);
+   var videoid = pool.query('SELECT * FROM videos WHERE email = ? AND name = ?',[newVideo.email, newVideo.name]);
    const ImageFiles = req.files.originalvideo;
    const id = videoid[0].id;
    //const contest = await pool.query('SELECT * FROM contest WHERE id = ?', [id]);
@@ -90,7 +89,7 @@ router.post('/add', async (req, res) =>{
   const videoname = req.user.id+"-"+contestid+"-"+id; 
   console.log(videoname); 
   await pool.query('UPDATE videos set original_video = ? WHERE id = ?', [videoname, videoid[0].id]);
-  res.redirect('videos/listvideos', {videosid});
+  res.redirect('videos/listvideos', {videosid});*/
        
 });
 
