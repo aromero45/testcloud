@@ -25,8 +25,6 @@ const database={
   database:process.env.DATABASE
 };
 
-console.log("Usuario db",process.env.USER_DB);
-console.log("password db",database.password);
 //inicializar
 const app = express();
 require('./lib/passport');

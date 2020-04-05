@@ -3,8 +3,11 @@ const router = express.Router();
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
+//const RUTA_GESTOR_ARCHIVOS = conf.get('ruta_gestion_archivos')
+//const RUTA_GESTOR_ARCHIVOS_RAIZ = conf.get('ruta_gestion_archivos_raiz')
 
-
+const RUTA_GESTOR_ARCHIVOS_RAIZ = process.env.ruta_gestion_archivos_raiz;
+const RUTA_GESTOR_ARCHIVOS = process.env.ruta_gestion_archivos;
 
 function checkFileType(file, cb){
     // Allowed ext
@@ -37,73 +40,72 @@ const pool = require('../database');
 const {isLoggedIn} = require('../lib/auth');
 
 router.get ('/add', isLoggedIn, (req, res) => {
-
      res.render('links/add');
 });
-router.post('/add',isLoggedIn, async (req, res) =>{
-
-    //const archivos=0;
+router.post('/add',isLoggedIn, function (req, res, success){
     
-        //res.end("File is uploaded");
         const archivos = req.body;
-        console.log(req.body);
         const archivos2 = req.files;
-      
-        //const archivos2 = req.file;
-         console.log(archivos2);
-         console.log(archivos);
-         
-    
-   
-       const {name, image, url, startdate, enddate, description} =archivos;
+        console.log(archivos2);
+        console.log(archivos);
+        let image
+        if (!req.files) {
+          image = null;
+        }
+        else{
+          image=req.files.image
+        }
+        let nameImage
+        image===null?nameImage='no-image':nameImage=image.name;
+        //const {name, url, startdate, enddate, description} =archivos;
         const newContest = {
-             name,
-             image,
-             url,
-             startdate,
-             enddate,
-             description,
+             name: req.body.name,
+             image:nameImage,
+             url: req.body.url,
+             startdate: req.body.startdate,
+             enddate: req.body.enddate,
+             description: req.body.description,
              user_id: req.user.id
         };
         
-        /*file.mv("../public/uploads/"+filename,function(err){
-                if(err){
-                   console.log(err);
-                }
-                else {
-                   Console.log('subida la imagen')
-                }
-        })*/
-        await pool.query('INSERT INTO contest set ?', [newContest]);
-     
-         var contestid = await pool.query('SELECT * FROM contest WHERE name = ? AND url = ?',[newContest.name, newContest.url]);
-         //let ImageFiles = req.files.image;
-         let ImageFiles
-          if (!req.files) {
-            ImageFiles = null;
-          }
-          else{
-            ImageFiles=req.files.image
-          }
-         const id = contestid[0].id;
-         //const contest = await pool.query('SELECT * FROM contest WHERE id = ?', [id]);
-         console.log(contestid);
-         console.log(id);
-         //const ImageFileName = `${new Date().getTime()}${path.extname(ImageFiles.name)}`
-         const ImageFileName = `${req.user.id+"-"+id}${path.extname(ImageFiles.name)}`
-         ImageFiles.mv(`${__dirname}/../public/uploads/${ImageFileName}`).then(async () => {
-             //console.log(req.files)
-             try {
-                 console.log("subio archivo");
-             } catch (error) {
-                 console.log("subida de archivo");
-             }
-         });
-        req.flash('success', 'concurso guardado correctamente');
-     
-        res.redirect('/links');
-   
+        //Si es correcto se crea la carpeta del concurso para la gestion de archivos
 
+        pool.query('INSERT INTO contest set ?', [newContest], function(err,result){
+          if(err){
+             throw err; 
+          }else{
+              pool.query('SELECT * FROM contest WHERE name = ? AND url = ?',[newContest.name, newContest.url], function(err,res){
+              if(err){
+                throw err
+              }else{
+                var contestid=res[0].id;
+                //if(contestid){
+                  console.log("Ruta archivos: ",RUTA_GESTOR_ARCHIVOS_RAIZ);
+                  if(!fs.existsSync(RUTA_GESTOR_ARCHIVOS_RAIZ))
+                        fs.mkdirSync(RUTA_GESTOR_ARCHIVOS_RAIZ);
+                        fs.mkdirSync(RUTA_GESTOR_ARCHIVOS+'Concurso '+contestid);
+                        fs.mkdirSync(RUTA_GESTOR_ARCHIVOS+'Concurso '+contestid+'//inicial');
+                        fs.mkdirSync(RUTA_GESTOR_ARCHIVOS+'Concurso '+contestid+'//convertido');
+                        if(image!==null){
+                            let filename=`concurso-${contestid}/${image.name}`;
+                            image.mv(RUTA_GESTOR_ARCHIVOS+'Concurso '+contestid+`//${image.name}`,function(err){
+                                if(err){
+                                    return res.status(500).send(err);
+                                }
+                                success(result);
+                            });
+                            success(result);
+                        }
+                  else{
+                      success(result);
+                  }
+                //} 
+              }
+            }); 
+        }
+      });          
+      req.flash('success', 'concurso guardado correctamente');
+      res.redirect('/links');
 });
 
 router.get('/', isLoggedIn, async (req, res) => {
@@ -126,39 +128,47 @@ router.get ('/edit/:id', isLoggedIn, async (req, res) => {
      res.render('links/edit', {contest: contest[0]} );
 });
 
-router.post ('/edit/:id', isLoggedIn, async (req, res) => {
+router.post ('/edit/:id', isLoggedIn, async (req, res, success) => {
     
-     const archivos = req.body;
-     console.log(req.body);
-     const archivos2 = req.files;
-
-  //const archivos2 = req.file;
-     console.log(archivos2);
-     console.log(archivos);
-     const ImageFiles = req.files.image;
-     const { id } = req.params; 
-     const {name, image, url, startdate, enddate, description} =req.body;
-     const newContest = {
-          name,
-          image,
-          url,
-          startdate,
-          enddate,
-          description
-     };
-     await pool.query('UPDATE contest set ? WHERE id = ?', [newContest, id]);
-         //const contest = await pool.query('SELECT * FROM contest WHERE id = ?', [id]);
-     console.log(ImageFiles);
-     console.log(id);
-         //const ImageFileName = `${new Date().getTime()}${path.extname(ImageFiles.name)}`
-     const ImageFileName = `${req.user.id+"-"+id}${path.extname(ImageFiles.name)}`
-     ImageFiles.mv(`${__dirname}/../public/uploads/${ImageFileName}`).then(async () => {
-             //console.log(req.files)
-             try {
-                 console.log("subio archivo");
-             } catch (error) {
-                 console.log("subida de archivo");
-             }
+      const archivos = req.body;
+      const archivos2 = req.files;
+      const { id } = req.params;
+      let image
+      if (!req.files) {
+        image = null;
+      }
+      else{
+        image=req.files.image
+      }
+      let nameImage
+      image===null?nameImage='no-image':nameImage=image.name;
+      const newContest = {
+          name: req.body.name,
+          image:nameImage,
+          url: req.body.url,
+          startdate: req.body.startdate,
+          enddate: req.body.enddate,
+          description: req.body.description,
+      };
+      pool.query('UPDATE contest set ? WHERE id = ?', [newContest, id],function(err,result){
+        if (err) {
+          throw err
+        }else{
+          if(fs.existsSync(RUTA_GESTOR_ARCHIVOS+'Concurso '+id))
+            if(image!==null){
+                let filename=`concurso-${id}/${image.name}`;
+                image.mv(RUTA_GESTOR_ARCHIVOS+'Concurso '+id+`//${image.name}`,function(err){
+                    if(err){
+                        return res.status(500).send(err);
+                    }
+                    success(result);
+                });
+                success(result);
+            }
+          else{
+              success(result);
+          }
+        }
      });
      req.flash('success', 'Concurso editado satisfactoriamente');
      res.redirect('/links');
