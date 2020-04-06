@@ -12,7 +12,6 @@ const RUTA_GESTOR_ARCHIVOS = process.env.ruta_gestion_archivos;
 const pool = require('../database');
 //const {isLoggedIn} = require('../lib/auth');
 router.get ('/add', (req, res) => {
-
      res.render('videos/addvideo');
 });
 
@@ -81,6 +80,9 @@ router.post('/add/url/:url', function (req, res, success){
               });
             }
         });
+        pool.query('SELECT * FROM contest WHERE url = ?', [url], function(err,result){
+          res.render('videos/listvideos', {result});
+        }); 
 });
 
 router.post('/add/id/:id', function (req, res, success){
@@ -88,7 +90,7 @@ router.post('/add/id/:id', function (req, res, success){
   const { id } = req.params;
   let contestid;
 
-  pool.query('SELECT * FROM contest WHERE url = ?',[id], function(err,result){
+  pool.query('SELECT * FROM contest WHERE id = ?',[id], function(err,result){
       if (err){
         throw err
       }else{
@@ -135,6 +137,9 @@ router.post('/add/id/:id', function (req, res, success){
         });
       }
   });
+  pool.query('SELECT * FROM contest WHERE id = ?', [id], function(err,result){
+    res.render('videos/listvideos', {result});
+  }); 
 });
 
 
