@@ -1,3 +1,5 @@
+
+
 <div class="container p-4">
     <div class="row">
         {{#each videos}}
@@ -10,6 +12,11 @@
                  </a>
                  <p>{{last_name}}</p>
                  <p>{{email}}</p>
+                  <video width="320" height="240" controls>
+                  <source src="/uploads/{{id}}/inicial/{{converted_video}}" type="video/mp4">
+                  <!---<source src="movie.ogg" type="video/ogg">
+                Your browser does not support the video tag.--->
+                  </video> 
 
                </div>
            </div>
