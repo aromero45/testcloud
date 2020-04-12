@@ -1,5 +1,29 @@
 <div class="container p-4">
     <div class="row">
+      {{#if isLogged}}
+        {{#each videos}}
+            <div class="col-md-3">
+                <div class="card-body">
+                  <a href="/{{this.original_video}}" target="_blank">
+                      <h3 class="card-title text-uppercase">
+                            {{this.name}} {{this.last_name}}
+                      </h3>
+                  </a>
+                  <p>{{this.email}}</p>
+                  <p>Estado: {{this.status}}</p>
+                  {{#if this.status=="Convertido"}}
+                    <div>
+                        <video width="320" height="240" controls>
+                          <source src="/uploads/{{this.contest_id}}/inicial/{{this.original_video}}" type="video/mp4">
+                          <!---<source src="movie.ogg" type="video/ogg">
+                        Your browser does not support the video tag.--->
+                        </video> 
+                    </div>
+                  {{/if}}
+                </div>
+            </div>
+        {{/each}}
+      {{else}}
         {{#each videos}}
            <div class="col-md-3">
                <div class="card-body">
@@ -18,14 +42,8 @@
                  </div>
                </div>
            </div>
-        {{else}}
-           <div class="col-md-4 mx auto"> 
-               <div class="card card-body text-center">
-                 <p>No hay videos en el concurso</p>
-                 <a href="/videos/add/id/{{this.contest_id}}">Subir un video</a>
-               </text-center>
-           </div>
         {{/each}}
+      {{/if}}
         {{#if url}}
         <br><br><br>
         <div class="col-md-6"> 

@@ -6,6 +6,7 @@ const exec = require('child_process').exec;
 var nameurl = [];
 const RUTA_GESTOR_ARCHIVOS_RAIZ = process.env.ruta_gestion_archivos_raiz;
 const RUTA_GESTOR_ARCHIVOS = process.env.ruta_gestion_archivos;
+const {isLoggedIn} = require('../lib/auth');
 
    // Init Upload
 
@@ -29,13 +30,14 @@ router.get ('/add', (req, res) => {
 
 router.get('/:url', async (req, res) => {
 
+  var isLogged=true;  
   const { url } = req.params;
-  console.log("URL",url);
+  console.log("URL get: ",url);
   nameurl[0]=url; 
   const links = await pool.query('SELECT * FROM contest WHERE url = ?', [url]); 
   const videos = await pool.query('SELECT *FROM videos WHERE contest_id = ?', [links[0].id]);
   //res.render('videos/addvideo',{links});
-  res.render('videos/listvideos', {videos:videos, url:url});
+  res.render('videos/listvideos', {videos:videos, url:url, isLogged:isLogged});
 }); 
 
 router.get('/add/:url', async (req, res) => {
@@ -51,7 +53,7 @@ router.get('/add/:url', async (req, res) => {
   //res.render('videos/listvideos', {videos,links});
 }); 
 
-router.post('/add/id/:id', function (req, response, success){
+router.post('/add/id/:id', function (req, res, success){
    
   const { id } = req.params;
   let contestid;
@@ -71,8 +73,8 @@ router.post('/add/id/:id', function (req, response, success){
         console.log("origin: ",req.files);
         let nameVideo
         originvideo===null?nameVideo='no-video':nameVideo=originvideo.name;   
-        console.log("Contest id: ",contestid);
-        console.log("nameVideo: ",nameVideo);
+        var nombreCompleto = nameVideo.split('.');
+        var extension = nombreCompleto[nombreCompleto.length - 1];
         const newVideo = {
             name: req.body.name,
             last_name: req.body.lastname,
@@ -86,28 +88,133 @@ router.post('/add/id/:id', function (req, response, success){
           if(err){
             throw err
           }else{
+            let status;
             if(fs.existsSync(RUTA_GESTOR_ARCHIVOS+contestid+'//inicial')){
                 if(originvideo!==null){
                     originvideo.mv(RUTA_GESTOR_ARCHIVOS+contestid+`//inicial//${originvideo.name}`,function(err, result){
                         if(err){
                             throw err;
-                            //return res.status(500).send(err);
                         }
-                        pool.query('SELECT * FROM videos WHERE contest_id = ?', [id], function(err,result){
-                          console.log("Concurso: ", result);
-                          response.render('videos/listvideos', {result});
-                          //success(result);
-                        });
+                    });
+                    if(extension==="mp4"){
+                      status="Convertido";
+                      originvideo.mv(RUTA_GESTOR_ARCHIVOS+contestid+`//convertido//${originvideo.name}`,function(err, result){
+                          if(err){
+                              throw err;
+                          }
+                      });
+                      pool.query('UPDATE into videos set status = ? '[status], function(err){
+                        if(err){
+                          throw err;
+                        }
+                      });
+                    }else{
+                      status="No Convertido";
+                      pool.query('UPDATE into videos set status = ? '[status], function(err){
+                        if(err){
+                          throw err;
+                        }
+                      });
+                    }
+                }
+                /*else{
+                    success(result);
+                }*/
+                success(result);
+            }
+          }
+        });
+      }
+  });
+  pool.query('SELECT * FROM contest WHERE id = ?', [id], function(err,result){
+    if(err){
+      throw err
+    }
+    console.log(result);
+    var data=result[0].url;
+    var page='/videos/'+data;
+    res.redirect(page);
+  });
+});
+
+router.post('/add/url/:url', function (req, res, success){
+   
+  const { url } = req.params;
+  let contestid;
+
+  pool.query('SELECT * FROM contest WHERE url = ?',[url], function(err,result){
+      if (err){
+        throw err
+      }else{
+        console.log(result[0]);
+        contestid=result[0].id;
+        let originvideo
+        if (!req.files) {
+          originvideo = null;
+        }
+        else{
+          originvideo=req.files.originalvideo;
+        }
+        console.log("origin: ",req.files);
+        let nameVideo
+        originvideo===null?nameVideo='no-video':nameVideo=originvideo.name;   
+        var nombreCompleto = nameVideo.split('.');
+        var extension = nombreCompleto[nombreCompleto.length - 1];
+        const newVideo = {
+            name: req.body.name,
+            last_name: req.body.lastname,
+            email: req.body.email,
+            message: req.body.message,
+            original_video: nameVideo,
+            contest_id: contestid
+        };
+        pool.query('INSERT INTO videos set ?', [newVideo], function(err){
+          if(err){
+            throw err
+          }else{
+            if(fs.existsSync(RUTA_GESTOR_ARCHIVOS+contestid+'//inicial')){
+                if(originvideo!==null){
+                    originvideo.mv(RUTA_GESTOR_ARCHIVOS+contestid+`//inicial//${originvideo.name}`,function(err, result){
+                        if(err){
+                            throw err;
+                        }
                     });
                 }
                 /*else{
                     success(result);
                 }*/
             }
+            success(result);
           }
         });
+        let status;
+        if(extension==="mp4"){
+          status="Convertido";
+          var convertedPath=RUTA_GESTOR_ARCHIVOS+contestid+'/convertido/'+nameVideo
+          originvideo.mv(RUTA_GESTOR_ARCHIVOS+contestid+`//convertido//${originvideo.name}`,function(err){
+              if(err){
+                  throw err;
+              }
+          });
+          pool.query('UPDATE videos SET status = ?, converted_video = ? WHERE original_video= ?',[status,convertedPath,nameVideo], function(err,result){
+            console.log("Res Update conv: ",result)
+            if(err){
+              throw err;
+            }
+          });
+        }else{
+          status="No Convertido";
+          pool.query('UPDATE videos SET status = ? WHERE original_video= ?',[status,nameVideo], function(err,result){
+            console.log("Res Update noConv; ",result)
+            if(err){
+              throw err;
+            }
+          });
+        }
       }
   });
+  var page='/videos/'+url;
+  res.redirect(page);
 });
 
 
