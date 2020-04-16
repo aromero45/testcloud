@@ -42,7 +42,7 @@ DESCRIBE contest;
 
 CREATE TABLE videos (
   id INT(11) NOT NULL,
-  status INT(11) NOT NULL DEFAULT '0',
+  status VARCHAR(45) NULL,
   creationdate TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   message TEXT NOT NULL,
   original_video TEXT,
