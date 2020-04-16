@@ -11,13 +11,13 @@ const validator = require('express-validator');
 const fileUpload = require('express-fileupload');
 const dotenv = require('dotenv');
 
-/*if(process.env.NODE_ENV === 'local'){
-  dotenv.config( {path: "./environments/local.env"});
-}else{
+if(process.env.NODE_ENV === 'aws'){
   dotenv.config( {path: "./environments/aws.env"});
-}*/
+}else{
+  dotenv.config( {path: "./environments/local.env"});
+}
 
-dotenv.config( {path: "../environments/local.env"});
+//dotenv.config( {path: "../environments/local.env"});
 
 const database={
   user:process.env.USER_DB,
