@@ -9,22 +9,25 @@ const passport = require('passport');
 const bodyParser = require('body-parser');
 const validator = require('express-validator');
 const fileUpload = require('express-fileupload');
+var AWS = require('aws-sdk');
 const dotenv = require('dotenv');
 
+/*
 if(process.env.NODE_ENV === 'aws'){
   dotenv.config( {path: "./environments/aws.env"});
 }else{
   dotenv.config( {path: "./environments/local.env"});
-}
+}*/
 
-//dotenv.config( {path: "../environments/local.env"});
+dotenv.config( {path: "../environments/aws.env"});
 
 const database={
+  host:process.env.HOST,
+  port:process.env.PORT_DB,
   user:process.env.USER_DB,
   password:process.env.PASSWORD_DB,
   database:process.env.DATABASE
 };
-
 //inicializar
 const app = express();
 require('./lib/passport');

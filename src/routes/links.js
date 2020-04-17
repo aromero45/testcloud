@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const path = require('path');
+var AWS = require('aws-sdk');
 const RUTA_GESTOR_ARCHIVOS_RAIZ = process.env.ruta_gestion_archivos_raiz;
 const RUTA_GESTOR_ARCHIVOS = process.env.ruta_gestion_archivos;
 

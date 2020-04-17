@@ -4,10 +4,15 @@ const { promisify } = require('util');
 
 
 const database={
+    host:process.env.HOST,
+    port:process.env.PORT_DB,
     user:process.env.USER_DB,
     password:process.env.PASSWORD_DB,
     database:process.env.DATABASE
 };
+
+console.log(database);
+
 
 
 const pool = mysql.createPool(database); 
