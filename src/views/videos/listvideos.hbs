@@ -11,7 +11,7 @@
                   </a>
                   <p>{{this.email}}</p>
                   <p>Estado: {{this.status}}</p>
-                  {{#if this.status=="Convertido"}}
+                  {{#ifEquals this.status "Convertido"}}
                     <div>
                         <video width="320" height="240" controls>
                           <source src="/uploads/{{this.contest_id}}/inicial/{{this.original_video}}" type="video/mp4">
@@ -19,7 +19,10 @@
                         Your browser does not support the video tag.--->
                         </video> 
                     </div>
-                  {{/if}}
+                  {{/ifEquals}}
+                  {{else}}
+                  <p>Video todavia no convertido a formato</p>
+                  {{/else}}
                 </div>
             </div>
         {{/each}}
