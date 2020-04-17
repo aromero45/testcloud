@@ -19,15 +19,16 @@ sudo apt install build-essential
 
 sudo apt update
 
-Instalar en el repo lo siguiente: 
+Instalar en el repo y en el cron lo siguiente: 
 
-npm i express express-handlebars express-session mysql express-mysql-session morgan bcryptjs passport passport-local timeago.js connect-flash express-validator 
 
-npm i express-fileupload
+npm install 
 
-npm install --save multer
 
-npm install aws-sdk
+iniciar repo con 
 
-npm i nodemon -D
+npm install pm2 -g
+
+pm2 start index.js 
+
 
