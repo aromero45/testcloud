@@ -19,7 +19,7 @@ if(process.env.NODE_ENV === 'aws'){
   dotenv.config( {path: "./environments/local.env"});
 }*/
 
-dotenv.config( {path: "../environments/envs/aws.env"});
+dotenv.config( {path: "../environments/aws.env"});
 
 const database={
   host:process.env.HOST,
