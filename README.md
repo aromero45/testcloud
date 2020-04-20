@@ -1,15 +1,15 @@
 
 Instalar en el servidor lo siguiente:
 
-sudo apt-get update
+sudo apt-get update -y
 
-sudo apt install nodejs
+sudo apt install nodejs -y
 
-sudo apt install npm
+sudo apt install npm -y
 
-sudo add-apt-repository ppa:jonathonf/ffmpeg-4
+sudo add-apt-repository ppa:jonathonf/ffmpeg-4 -y
 
-sudo apt update
+sudo apt update -y
 
 sudo apt install ffmpeg # run this to install ffmpeg
 
